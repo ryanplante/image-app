@@ -63,7 +63,7 @@ const ProductScanner = () => {
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
-        barCodeTypes={BarCodeScanner.Constants.BarCodeType.qr}
+        barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
       />
       {scanned && (
         <TouchableOpacity

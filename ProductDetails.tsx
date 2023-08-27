@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, Platform, StatusBar, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFetch } from './useFetch';
@@ -51,7 +51,7 @@ const ProductDetails = ({ route, navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text>Back</Text>
@@ -66,6 +66,7 @@ const ProductDetails = ({ route, navigation }) => {
           color={isFavorite ? 'red' : 'black'}
         />
       </TouchableOpacity>
+      <ScrollView>
       <Image source={{ uri: productData.image }} style={styles.productImage} />
       <Text style={styles.productTitle}>{productData.title}</Text>
       <Text style={styles.productCategory}>Category: {productData.category}</Text>
@@ -93,27 +94,29 @@ const ProductDetails = ({ route, navigation }) => {
           <Text style={styles.buttonText}>Buy Now</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    padding: 20,
+    paddingTop: 50,
     margin: 10
   },
   backButton: {
     position: 'absolute',
-    top: StatusBar.currentHeight + 40,
+    top: 40,
     left: 20,
     zIndex: 1,
+    marginBottom: 100,
   },
   favoriteButton: {
     position: 'absolute',
-    top: StatusBar.currentHeight + 35,
+    top: 35,
     right: 20,
+    marginBottom: 100,
     zIndex: 1, 
   },
   productImage: {
