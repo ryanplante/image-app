@@ -10,6 +10,7 @@ const useWeatherAPI = (endpoint: string, apiKey: string) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log(`${API_BASE_URL}${endpoint}&key=${apiKey}`)
         const response = await axios.get(`${API_BASE_URL}${endpoint}&key=${apiKey}`);
         
         if (!response.data) {

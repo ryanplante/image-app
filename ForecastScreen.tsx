@@ -2,12 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome icon
-
-const Tab = createBottomTabNavigator();
 
 const ForecastScreen = ({ data }) => {
+  const screenWidth = Dimensions.get('window').width;
+  const forecastDayWidth = screenWidth * 0.5; // Set each forecast indice to 50% of the screen width
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
   });
@@ -23,48 +21,10 @@ const ForecastScreen = ({ data }) => {
   const forecastDays = data.forecast.forecastday;
 
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Tab.Screen
-        name="3 Day Forecast"
-        component={ForecastTab}
-        initialParams={{ data: forecastDays.slice(0, 3) }}
-        options={{
-          tabBarBadge: 3,
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesomeIcon name="sun-o" color={color} size={size} /> // Use FontAwesome sunny icon
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="7 Day Forecast"
-        component={ForecastTab}
-        initialParams={{ data: forecastDays }}
-        options={{
-          tabBarBadge: 7,
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesomeIcon name="sun-o" color={color} size={size} /> // Use FontAwesome sunny icon
-          ),
-        }}
-      />
-    </Tab.Navigator>
-  );
-};
-
-const ForecastTab = ({ route }) => {
-  const { data } = route.params;
-  const screenWidth = Dimensions.get('window').width;
-  const forecastDayWidth = screenWidth * 0.5; // Set each forecast indice to 50% of the screen width
-
-  return (
     <LinearGradient colors={['#B4E1FF', '#1E2A4A']} style={styles.container}>
       <ScrollView horizontal contentContainerStyle={[styles.scrollContent, { alignItems: 'center' }]}>
-        {data.map((day) => {
+        {forecastDays.map((day) => {
           const date = new Date(day.date);
-          console.log(date);
           date.setDate(date.getDate() + 1); // Add 1 day
           const dayOfWeek = date.toLocaleString('en-US', { weekday: 'long' }).split(',')[0];
           return (

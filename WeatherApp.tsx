@@ -1,44 +1,60 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as Location from 'expo-location';
 import useWeatherAPI from './useWeatherAPI';
 import CurrentWeatherScreen from './CurrentWeatherScreen';
 import ForecastScreen from './ForecastScreen';
 
-const Drawer = createDrawerNavigator();
+const Tab = createBottomTabNavigator();
+
 const API_KEY = 'd7e88c2243f84a3eb41183055231408';
 
-const WeatherApp = () => {
-  const navigation = useNavigation();
-  const [location, setLocation] = useState(null);
+const WeatherApp = ({ route }) => {
+  const { useDeviceLocation, location: routeLocation } = route.params;
+  const [location, setLocation] = useState(routeLocation || null);
+  const [currentKey, setCurrentKey] = useState(0);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status === 'granted') {
-          const location = await Location.getCurrentPositionAsync({});
-          setLocation({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          });
+    if (useDeviceLocation) {
+      (async () => {
+        try {
+          const { status } = await Location.requestForegroundPermissionsAsync();
+          if (status === 'granted') {
+            const currentLocation = await Location.getCurrentPositionAsync({});
+            setLocation({
+              latitude: currentLocation.coords.latitude,
+              longitude: currentLocation.coords.longitude,
+            });
+          }
+        } catch (error) {
+          console.error('Error getting location:', error);
         }
-      } catch (error) {
-        console.error('Error getting location:', error);
-      }
-    })();
+      })();
+    }
+  }, [useDeviceLocation]);
+
+  // Use useEffect to update the location when route.params changes
+  useEffect(() => {
+    if (routeLocation) {
+      setLocation(routeLocation);
+    }
+  }, [routeLocation]);
+
+  const refreshData = useCallback(() => {
+    setCurrentKey((prevKey) => prevKey + 1);
   }, []);
 
   const { data: currentWeatherData, loading: currentWeatherLoading } = useWeatherAPI(
-    location ? `/current.json?q=${location.latitude},${location.longitude}` : '/current.json?q=Warwick,RI', // Default to Warwick if the location fails
-    API_KEY
+    location ? `/current.json?q=${location.latitude},${location.longitude}` : '/current.json?q=Warwick,RI',
+    API_KEY,
+    [currentKey]
   );
 
   const { data: forecastData, loading: forecastLoading } = useWeatherAPI(
     location ? `/forecast.json?q=${location.latitude},${location.longitude}&days=7` : '/forecast.json?q=Warwick,RI&days=7',
-    API_KEY
+    API_KEY,
+    [currentKey]
   );
 
   if (currentWeatherLoading || forecastLoading) {
@@ -46,18 +62,14 @@ const WeatherApp = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <Drawer.Navigator initialRouteName="CurrentWeather" screenOptions={{
-          drawerPosition: 'left'
-        }}>
-        <Drawer.Screen name="Current Weather">
-          {() => <CurrentWeatherScreen data={currentWeatherData} />}
-        </Drawer.Screen>
-        <Drawer.Screen name="Forecast">
-          {() => <ForecastScreen data={forecastData} />}
-        </Drawer.Screen>
-      </Drawer.Navigator>
-    </View>
+    <Tab.Navigator>
+      <Tab.Screen name="Current Weather">
+        {() => <CurrentWeatherScreen data={currentWeatherData} onRefresh={refreshData} />}
+      </Tab.Screen>
+      <Tab.Screen name="7 Day Forecast">
+        {() => <ForecastScreen data={forecastData} onRefresh={refreshData} />}
+      </Tab.Screen>
+    </Tab.Navigator>
   );
 };
 
