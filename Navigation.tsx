@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import ShakeToCharge from './ShakeToCharge';
 import WeatherApp from './WeatherApp';
 import CitySearchScreen from './CitySearchScreen';
+import SavedLocationsScreen from './SavedLocationsScreen';
 
 const Stack = createStackNavigator();
 const ScannerStack = createStackNavigator();
@@ -45,8 +46,10 @@ const WeatherStackNavigator = ({ navigation }) => (
           drawerIcon: () => null,
         }}
         initialParams={{ useDeviceLocation: true }}
+        key={Date.now().toString()} // Add a unique key
       />
       <WeatherStack.Screen name="Search" component={CitySearchScreen} />
+      <WeatherStack.Screen name="Saved Locations" component={SavedLocationsScreen} />
       {/* Week screens will exist here */}
     </WeatherStack.Navigator>
 );

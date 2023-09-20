@@ -1,59 +1,74 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as Location from 'expo-location';
 import useWeatherAPI from './useWeatherAPI';
 import CurrentWeatherScreen from './CurrentWeatherScreen';
 import ForecastScreen from './ForecastScreen';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 
-const API_KEY = 'd7e88c2243f84a3eb41183055231408';
-
 const WeatherApp = ({ route }) => {
   const { useDeviceLocation, location: routeLocation } = route.params;
-  const [location, setLocation] = useState(routeLocation || null);
+  console.log(useDeviceLocation);
+  const [location, setLocation] = useState(null);
   const [currentKey, setCurrentKey] = useState(0);
+  const [hasDeviceLocation, setHasDeviceLocation] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    if (useDeviceLocation) {
-      (async () => {
-        try {
-          const { status } = await Location.requestForegroundPermissionsAsync();
-          if (status === 'granted') {
-            const currentLocation = await Location.getCurrentPositionAsync({});
-            setLocation({
-              latitude: currentLocation.coords.latitude,
-              longitude: currentLocation.coords.longitude,
-            });
-          }
-        } catch (error) {
-          console.error('Error getting location:', error);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshLocation();
+    refreshData();
+  }, []);
+
+  const refreshLocation = async () => {
+    if (useDeviceLocation && !hasDeviceLocation) {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const currentLocation = await Location.getCurrentPositionAsync({});
+          setLocation({
+            latitude: currentLocation.coords.latitude,
+            longitude: currentLocation.coords.longitude,
+          });
+          setHasDeviceLocation(true);
         }
-      })();
+      } catch (error) {
+        console.error('Error getting location:', error);
+      }
     }
-  }, [useDeviceLocation]);
+  };
 
-  // Use useEffect to update the location when route.params changes
   useEffect(() => {
-    if (routeLocation) {
-      setLocation(routeLocation);
+    if (useDeviceLocation && !hasDeviceLocation) {
+      refreshLocation();
     }
-  }, [routeLocation]);
+  }, [useDeviceLocation, hasDeviceLocation]);
+
+  // Use useFocusEffect to update the location when the screen gains focus
+  useFocusEffect(
+    useCallback(() => {
+      if (routeLocation) {
+        setLocation(routeLocation);
+        refreshData(); // Refresh data when route location changes
+      }
+    }, [routeLocation])
+  );
 
   const refreshData = useCallback(() => {
     setCurrentKey((prevKey) => prevKey + 1);
+    setRefreshing(false); // Reset refreshing state when data is refreshed
   }, []);
 
   const { data: currentWeatherData, loading: currentWeatherLoading } = useWeatherAPI(
     location ? `/current.json?q=${location.latitude},${location.longitude}` : '/current.json?q=Warwick,RI',
-    API_KEY,
     [currentKey]
   );
 
   const { data: forecastData, loading: forecastLoading } = useWeatherAPI(
     location ? `/forecast.json?q=${location.latitude},${location.longitude}&days=7` : '/forecast.json?q=Warwick,RI&days=7',
-    API_KEY,
     [currentKey]
   );
 
@@ -62,14 +77,21 @@ const WeatherApp = ({ route }) => {
   }
 
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Current Weather">
-        {() => <CurrentWeatherScreen data={currentWeatherData} onRefresh={refreshData} />}
-      </Tab.Screen>
-      <Tab.Screen name="7 Day Forecast">
-        {() => <ForecastScreen data={forecastData} onRefresh={refreshData} />}
-      </Tab.Screen>
-    </Tab.Navigator>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      <Tab.Navigator>
+        <Tab.Screen name="Current Weather">
+          {() => <CurrentWeatherScreen data={currentWeatherData} onRefresh={onRefresh} />}
+        </Tab.Screen>
+        <Tab.Screen name="7 Day Forecast">
+          {() => <ForecastScreen data={forecastData} onRefresh={onRefresh} />}
+        </Tab.Screen>
+      </Tab.Navigator>
+    </ScrollView>
   );
 };
 
