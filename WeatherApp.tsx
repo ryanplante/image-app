@@ -99,9 +99,10 @@ const WeatherApp = ({ route }) => {
             return <Ionicons name={iconName} size={size} color={color} />;
           },
         })}
-        tabBarOptions={{
-          activeTintColor: 'blue', // Change the color for active tab
-          inactiveTintColor: 'gray', // Change the color for inactive tab
+        tabBarActiveTintColor="blue" // Change the color for active tab
+        tabBarInactiveTintColor="gray" // Change the color for inactive tab
+        tabBarStyle={{
+          display: 'flex',
         }}
       >
         <Tab.Screen name="Current Weather">

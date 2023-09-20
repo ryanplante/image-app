@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const API_BASE_URL = 'https://api.weatherapi.com/v1';
-const API_KEY = 'd7e88c2243f84a3eb41183055231408';
+const API_KEY = '51a36a7cbbb447dfb52185621232009';
 
 const useWeatherAPI = (endpoint: string) => {
   const [data, setData] = useState<any>(null);
