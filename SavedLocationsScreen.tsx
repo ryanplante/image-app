@@ -1,24 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { StatusBar } from 'react-native';
+import { NavigationProp, RouteProp } from '@react-navigation/native';
 
-const SavedLocationsScreen = ({ navigation }) => {
-  const [savedLocations, setSavedLocations] = useState([]);
+interface City {
+  name: string;
+  region: string;
+  country: string;
+  lat: number;
+  lon: number;
+}
+
+interface SavedLocationsScreenProps {
+  navigation: NavigationProp<any>;
+  route: RouteProp<any, any>;
+}
+
+function SavedLocationsScreen({ navigation }: SavedLocationsScreenProps) {
+  const [savedLocations, setSavedLocations] = useState<City[]>([]);
 
   const fetchSavedLocations = async () => {
     try {
       const storedLocations = await AsyncStorage.getItem('savedLocations');
       if (storedLocations) {
-        console.log(storedLocations)
-        const parsedLocations = JSON.parse(storedLocations);
+        console.log(storedLocations);
+        const parsedLocations = JSON.parse(storedLocations) as City[];
         setSavedLocations(parsedLocations);
       }
     } catch (error) {
       console.error('Error fetching saved locations:', error);
     }
-  };
+  }
 
   useFocusEffect(
     React.useCallback(() => {
@@ -26,7 +40,7 @@ const SavedLocationsScreen = ({ navigation }) => {
     }, [])
   );
 
-  const handleSelectCity = (city) => {
+  const handleSelectCity = (city: City) => {
     navigation.navigate('Weather', {
       useDeviceLocation: false,
       location: {
@@ -56,12 +70,12 @@ const SavedLocationsScreen = ({ navigation }) => {
       )}
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
     padding: 20,
   },
   locationItem: {

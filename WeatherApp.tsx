@@ -6,17 +6,29 @@ import useWeatherAPI from './useWeatherAPI';
 import CurrentWeatherScreen from './CurrentWeatherScreen';
 import ForecastScreen from './ForecastScreen';
 import { useFocusEffect } from '@react-navigation/native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
 
-const WeatherApp = ({ route }) => {
+interface WeatherAppProps {
+  route: {
+    params: {
+      useDeviceLocation: boolean;
+      location?: {
+        latitude: number;
+        longitude: number;
+      };
+    };
+  };
+}
+
+function WeatherApp({ route }: WeatherAppProps) {
   const { useDeviceLocation, location: routeLocation } = route.params;
   console.log(useDeviceLocation);
-  const [location, setLocation] = useState(null);
-  const [currentKey, setCurrentKey] = useState(0);
-  const [hasDeviceLocation, setHasDeviceLocation] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [currentKey, setCurrentKey] = useState<number>(0);
+  const [hasDeviceLocation, setHasDeviceLocation] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -72,6 +84,7 @@ const WeatherApp = ({ route }) => {
     location ? `/forecast.json?q=${location.latitude},${location.longitude}&days=7` : '/forecast.json?q=Warwick,RI&days=7',
     [currentKey]
   );
+  
 
   if (currentWeatherLoading || forecastLoading) {
     return <LoadingIndicator />;
@@ -84,23 +97,23 @@ const WeatherApp = ({ route }) => {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <Tab.Navigator       
+      <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;
 
             if (route.name === 'Current Weather') {
-              iconName = focused ? 'partly-sunny' : 'partly-sunny-outline'; // Change to clock icon
+              iconName = focused ? 'partly-sunny' : 'partly-sunny-outline'; // Clock icon
             } else if (route.name === '7 Day Forecast') {
-              iconName = focused ? 'calendar' : 'calendar-outline'; // Change to calendar icon
+              iconName = focused ? 'calendar' : 'calendar-outline'; // Calendar icon
             }
 
             return <Ionicons name={iconName} size={size} color={color} />;
           },
         })}
-        tabBarActiveTintColor="blue" // Change the color for active tab
-        tabBarInactiveTintColor="gray" // Change the color for inactive tab
+        tabBarActiveTintColor="blue" // Change the color for the active tab
+        tabBarInactiveTintColor="gray" // Change the color for the inactive tab
         tabBarStyle={{
           display: 'flex',
         }}
@@ -114,7 +127,7 @@ const WeatherApp = ({ route }) => {
       </Tab.Navigator>
     </ScrollView>
   );
-};
+}
 
 const LoadingIndicator = () => (
   <View style={styles.loadingContainer}>

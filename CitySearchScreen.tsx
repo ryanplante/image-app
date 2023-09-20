@@ -17,7 +17,7 @@ const CitySearchScreen = ({ navigation }) => {
 
     // Query data from the JSON server with the search term
     axios
-      .get(`http://192.168.254.1:3000/cities?name_like=${searchTerm}`)
+      .get(`http://71.161.232.253:3009/cities?name_like=${searchTerm}`) // JSON server is being hosted on my home PC, I can provide you the db.json just in case you get network errors
       .then((response) => {
         const cityData = response.data;
         setCities(cityData);

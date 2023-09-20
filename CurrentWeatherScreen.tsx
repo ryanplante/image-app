@@ -4,7 +4,37 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CurrentWeatherScreen = ({ data }) => {
+interface CurrentWeatherData {
+  location: {
+    name: string;
+    region: string;
+    country: string;
+    lat: number;
+    lon: number;
+  };
+  current: {
+    temp_f: number;
+    condition: {
+      text: string;
+      icon: string;
+    };
+    wind_mph: number;
+    pressure_mb: number;
+    humidity: number;
+    cloud: number;
+    feelslike_f: number;
+    vis_miles: number;
+    uv: number;
+    last_updated: string;
+    is_day: boolean;
+  };
+}
+
+interface CurrentWeatherScreenProps {
+  data: CurrentWeatherData | null;
+}
+
+const CurrentWeatherScreen: React.FC<CurrentWeatherScreenProps> = ({ data }) => {
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
   });
@@ -19,10 +49,10 @@ const CurrentWeatherScreen = ({ data }) => {
         if (existingLocations) {
           const parsedLocations = JSON.parse(existingLocations);
           const isLocationFavorite = parsedLocations.some(
-            (loc) =>
-              loc.name === data.location.name &&
-              loc.region === data.location.region &&
-              loc.country === data.location.country
+            (loc: any) =>
+              loc.name === data?.location.name &&
+              loc.region === data?.location.region &&
+              loc.country === data?.location.country
           );
           setIsFavorite(isLocationFavorite);
         }
@@ -32,7 +62,7 @@ const CurrentWeatherScreen = ({ data }) => {
     };
 
     checkFavoriteStatus();
-  }, [data.location]);
+  }, [data?.location]);
 
   if (!data || !fontsLoaded) {
     return (
@@ -72,12 +102,12 @@ const CurrentWeatherScreen = ({ data }) => {
       };
 
       const existingLocations = await AsyncStorage.getItem('savedLocations');
-      let updatedLocations = [];
+      let updatedLocations: any[] = [];
 
       if (existingLocations) {
         const parsedLocations = JSON.parse(existingLocations);
         const isLocationFavorite = parsedLocations.some(
-          (loc) =>
+          (loc: any) =>
             loc.name === newLocation.name &&
             loc.region === newLocation.region &&
             loc.country === newLocation.country
@@ -86,7 +116,7 @@ const CurrentWeatherScreen = ({ data }) => {
         if (isLocationFavorite) {
           // Remove location from favorites
           updatedLocations = parsedLocations.filter(
-            (loc) =>
+            (loc: any) =>
               loc.name !== newLocation.name ||
               loc.region !== newLocation.region ||
               loc.country !== newLocation.country
@@ -113,7 +143,7 @@ const CurrentWeatherScreen = ({ data }) => {
     <LinearGradient colors={gradientColors} style={styles.container}>
       <Text style={styles.location}>{location.name}, {location.region}</Text>
       <Image source={{ uri: `https:${icon}` }} style={styles.weatherIcon} />
-      <Text style={styles.temperature}>{temp_f}°F</Text>
+      <Text style={styles.temperature}>{Math.round(temp_f)}°F</Text>
       <Text style={styles.condition}>{text}</Text>
       <View style={styles.weatherDetails}>
         <Text style={styles.infoText}>Wind: {wind_mph} mph</Text>

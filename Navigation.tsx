@@ -7,7 +7,7 @@ import FavoritesListScreen from './FavoritesListScreen';
 import PhotoGalleryScreen from './PhotoGalleryScreen';
 import PhotoDetailScreen from './PhotoDetailScreen';
 import ImageModalScreen from './ImageModalScreen';
-//import ProductScreen from './ProductScreen';
+// import ProductScreen from './ProductScreen';
 import ProductDetails from './ProductDetails';
 import ProductScanner from './ProductScanner';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,29 +31,28 @@ const MainStackNavigator = () => (
   </Stack.Navigator>
 );
 
-const WeatherStackNavigator = ({ navigation }) => (
-    <WeatherStack.Navigator
-      screenOptions={{
-        drawerPosition: 'left',
-        drawerType: "front"
+const WeatherStackNavigator = () => (
+  <WeatherStack.Navigator
+    screenOptions={{
+      drawerPosition: 'left',
+      drawerType: "front"
+    }}
+  >
+    <WeatherStack.Screen
+      name="Weather"
+      component={WeatherApp}
+      options={{
+        drawerLabel: 'Current Location',
+        drawerIcon: () => null,
       }}
-    >
-      <WeatherStack.Screen
-        name="Weather"
-        component={WeatherApp}
-        options={{
-          drawerLabel: 'Current Location',
-          drawerIcon: () => null,
-        }}
-        initialParams={{ useDeviceLocation: true }}
-        key={Date.now().toString()} // Add a unique key
-      />
-      <WeatherStack.Screen name="Search" component={CitySearchScreen} />
-      <WeatherStack.Screen name="Saved Locations" component={SavedLocationsScreen} />
-      {/* Week screens will exist here */}
-    </WeatherStack.Navigator>
+      initialParams={{ useDeviceLocation: true }}
+      key={Date.now().toString()} // Add a unique key
+    />
+    <WeatherStack.Screen name="Search" component={CitySearchScreen} />
+    <WeatherStack.Screen name="Saved Locations" component={SavedLocationsScreen} />
+    {/* Week screens will exist here */}
+  </WeatherStack.Navigator>
 );
-
 
 const ScannerStackNavigator = () => (
   <ScannerStack.Navigator>
@@ -102,8 +101,6 @@ const ScannerTabScreen = () => (
   </Tab.Navigator>
 );
 
-
-
 const DrawerNavigator = () => (
   <Drawer.Navigator
     screenOptions={{
@@ -133,7 +130,5 @@ const Navigation = () => {
     </NavigationContainer>
   );
 };
-
-
 
 export default Navigation;

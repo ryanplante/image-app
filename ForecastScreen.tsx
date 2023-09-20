@@ -3,7 +3,33 @@ import { View, Text, StyleSheet, Image, ScrollView, Dimensions, Animated } from 
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
 
-const ForecastScreen = ({ data }) => {
+interface ForecastData {
+  forecast: {
+    forecastday: {
+      date: string;
+      date_epoch: number;
+      day: {
+        maxtemp_f: number;
+        mintemp_f: number;
+        condition: {
+          text: string;
+          icon: string;
+        };
+        totalprecip_in: number;
+        avghumidity: number;
+        uv: number;
+        maxwind_mph: number;
+        avgvis_miles: number;
+      };
+    }[];
+  };
+}
+
+interface ForecastScreenProps {
+  data: ForecastData | null;
+}
+
+const ForecastScreen: React.FC<ForecastScreenProps> = ({ data }) => {
   const screenWidth = Dimensions.get('window').width;
   const forecastDayWidth = screenWidth * 0.5;
   const [fontsLoaded] = useFonts({
@@ -57,8 +83,8 @@ const ForecastScreen = ({ data }) => {
               <Text style={styles.date}>{dayOfWeek}</Text>
               <Image source={{ uri: `https:${day.day.condition.icon}` }} style={styles.weatherIcon} />
               <Text style={styles.condition}>{day.day.condition.text}</Text>
-              <Text style={styles.temp}>High: {day.day.maxtemp_f}°F</Text>
-              <Text style={styles.temp}>Low: {day.day.mintemp_f}°F</Text>
+              <Text style={styles.temp}>High: {Math.round(day.day.maxtemp_f)}°F</Text>
+              <Text style={styles.temp}>Low: {Math.round(day.day.mintemp_f)}°F</Text>
               <Text style={styles.infoText}>Precipitation: {day.day.totalprecip_in} in</Text>
               <Text style={styles.infoText}>Humidity: {day.day.avghumidity}%</Text>
               <Text style={styles.infoText}>UV Index: {day.day.uv}</Text>
