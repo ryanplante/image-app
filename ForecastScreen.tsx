@@ -29,7 +29,7 @@ interface ForecastScreenProps {
   data: ForecastData | null;
 }
 
-const ForecastScreen: React.FC<ForecastScreenProps> = ({ data }) => {
+const ForecastScreen = ({ data }: ForecastScreenProps) => {
   const screenWidth = Dimensions.get('window').width;
   const forecastDayWidth = screenWidth * 0.5;
   const [fontsLoaded] = useFonts({
