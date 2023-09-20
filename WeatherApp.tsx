@@ -83,7 +83,10 @@ const WeatherApp = ({ route }) => {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <Tab.Navigator>
+      <Tab.Navigator       
+      screenOptions={{
+        headerShown: false
+      }}>
         <Tab.Screen name="Current Weather">
           {() => <CurrentWeatherScreen data={currentWeatherData} onRefresh={onRefresh} />}
         </Tab.Screen>

@@ -64,7 +64,6 @@ const CitySearchScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>City Search</Text>
       <TextInput
         style={styles.input}
         placeholder="Enter a city name..."
@@ -86,11 +85,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
   },
   cityItem: {
     fontSize: 16,

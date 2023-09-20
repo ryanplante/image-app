@@ -35,7 +35,7 @@ const WeatherStackNavigator = ({ navigation }) => (
     <WeatherStack.Navigator
       screenOptions={{
         drawerPosition: 'left',
-        headerShown: false,
+        drawerType: "front"
       }}
     >
       <WeatherStack.Screen

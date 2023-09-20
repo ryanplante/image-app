@@ -11,6 +11,7 @@ const SavedLocationsScreen = ({ navigation }) => {
     try {
       const storedLocations = await AsyncStorage.getItem('savedLocations');
       if (storedLocations) {
+        console.log(storedLocations)
         const parsedLocations = JSON.parse(storedLocations);
         setSavedLocations(parsedLocations);
       }
@@ -37,19 +38,22 @@ const SavedLocationsScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Saved Locations</Text>
-      <FlatList
-        data={savedLocations}
-        keyExtractor={(item, index) => `${item.name}-${index}`}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => handleSelectCity(item)}
-            style={styles.locationItem}
-          >
-            <Text>{item.name}, {item.region}, {item.country}</Text>
-          </TouchableOpacity>
-        )}
-      />
+      {savedLocations.length === 0 ? (
+        <Text>No saved locations</Text>
+      ) : (
+        <FlatList
+          data={savedLocations}
+          keyExtractor={(item, index) => `${item.name}-${index}`}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => handleSelectCity(item)}
+              style={styles.locationItem}
+            >
+              <Text>{item.name}, {item.region}, {item.country}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -57,15 +61,8 @@ const SavedLocationsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, 
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',      
-    textAlignVertical: 'center' 
   },
   locationItem: {
     padding: 10,
