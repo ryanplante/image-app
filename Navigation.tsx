@@ -7,27 +7,52 @@ import FavoritesListScreen from './FavoritesListScreen';
 import PhotoGalleryScreen from './PhotoGalleryScreen';
 import PhotoDetailScreen from './PhotoDetailScreen';
 import ImageModalScreen from './ImageModalScreen';
-import WeatherApp from './WeatherApp';
-//import ProductScreen from './ProductScreen';
+// import ProductScreen from './ProductScreen';
 import ProductDetails from './ProductDetails';
 import ProductScanner from './ProductScanner';
 import { Ionicons } from '@expo/vector-icons';
 import ShakeToCharge from './ShakeToCharge';
+import WeatherApp from './WeatherApp';
+import CitySearchScreen from './CitySearchScreen';
+import SavedLocationsScreen from './SavedLocationsScreen';
 
 const Stack = createStackNavigator();
 const ScannerStack = createStackNavigator();
+
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
+const WeatherStack = createDrawerNavigator();
 
 const MainStackNavigator = () => (
   <Stack.Navigator initialRouteName="Main">
     <Stack.Screen name="PhotoGallery" component={PhotoGalleryScreen} />
     <Stack.Screen name="PhotoDetail" component={PhotoDetailScreen} />
     <Stack.Screen name="ImageModal" options={{ headerShown: false }} component={ImageModalScreen} />
-    <Stack.Screen name="Weather app" component={WeatherApp} />
   </Stack.Navigator>
 );
 
+const WeatherStackNavigator = () => (
+  <WeatherStack.Navigator
+    screenOptions={{
+      drawerPosition: 'left',
+      drawerType: "front"
+    }}
+  >
+    <WeatherStack.Screen
+      name="Weather"
+      component={WeatherApp}
+      options={{
+        drawerLabel: 'Current Location',
+        drawerIcon: () => null,
+      }}
+      initialParams={{ useDeviceLocation: true }}
+      key={Date.now().toString()} // Add a unique key
+    />
+    <WeatherStack.Screen name="Search" component={CitySearchScreen} />
+    <WeatherStack.Screen name="Saved Locations" component={SavedLocationsScreen} />
+    {/* Week screens will exist here */}
+  </WeatherStack.Navigator>
+);
 
 const ScannerStackNavigator = () => (
   <ScannerStack.Navigator>
@@ -76,8 +101,6 @@ const ScannerTabScreen = () => (
   </Tab.Navigator>
 );
 
-
-
 const DrawerNavigator = () => (
   <Drawer.Navigator
     screenOptions={{
@@ -93,7 +116,7 @@ const DrawerNavigator = () => (
         drawerIcon: () => null,
       }}
     />
-    <Drawer.Screen name="Weather app" component={WeatherApp} />
+    <Drawer.Screen name="Weather app" component={WeatherStackNavigator} />
     <Drawer.Screen name="Product Scanner" component={ScannerStackNavigator} />
     <Drawer.Screen name="Shake to Charge!" component={ShakeToCharge} />
     {/* Week screens will exist here */}
