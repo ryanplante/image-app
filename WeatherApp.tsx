@@ -6,6 +6,7 @@ import useWeatherAPI from './useWeatherAPI';
 import CurrentWeatherScreen from './CurrentWeatherScreen';
 import ForecastScreen from './ForecastScreen';
 import { useFocusEffect } from '@react-navigation/native';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'; 
 
 const Tab = createBottomTabNavigator();
 
@@ -84,9 +85,25 @@ const WeatherApp = ({ route }) => {
       }
     >
       <Tab.Navigator       
-      screenOptions={{
-        headerShown: false
-      }}>
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+
+            if (route.name === 'Current Weather') {
+              iconName = focused ? 'partly-sunny' : 'partly-sunny-outline'; // Change to clock icon
+            } else if (route.name === '7 Day Forecast') {
+              iconName = focused ? 'calendar' : 'calendar-outline'; // Change to calendar icon
+            }
+
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+        })}
+        tabBarOptions={{
+          activeTintColor: 'blue', // Change the color for active tab
+          inactiveTintColor: 'gray', // Change the color for inactive tab
+        }}
+      >
         <Tab.Screen name="Current Weather">
           {() => <CurrentWeatherScreen data={currentWeatherData} onRefresh={onRefresh} />}
         </Tab.Screen>

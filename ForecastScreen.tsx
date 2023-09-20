@@ -1,14 +1,21 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, Dimensions, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, Inter_400Regular } from '@expo-google-fonts/inter';
 
 const ForecastScreen = ({ data }) => {
   const screenWidth = Dimensions.get('window').width;
-  const forecastDayWidth = screenWidth * 0.5; // Set each forecast indice to 50% of the screen width
+  const forecastDayWidth = screenWidth * 0.5;
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
   });
+
+  const scaleValue = new Animated.Value(1);
+
+  const onScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { x: scaleValue } } }],
+    { useNativeDriver: false }
+  );
 
   if (!data || !fontsLoaded) {
     return (
@@ -22,13 +29,31 @@ const ForecastScreen = ({ data }) => {
 
   return (
     <LinearGradient colors={['#B4E1FF', '#1E2A4A']} style={styles.container}>
-      <ScrollView horizontal contentContainerStyle={[styles.scrollContent, { alignItems: 'center' }]}>
-        {forecastDays.map((day) => {
+      <Animated.ScrollView
+        horizontal
+        contentContainerStyle={[styles.scrollContent, { alignItems: 'center' }]}
+        onScroll={onScroll}
+        showsHorizontalScrollIndicator={false}
+      >
+        {forecastDays.map((day, index) => {
           const date = new Date(day.date);
-          date.setDate(date.getDate() + 1); // Add 1 day
+          date.setDate(date.getDate() + 1);
           const dayOfWeek = date.toLocaleString('en-US', { weekday: 'long' }).split(',')[0];
+
+          const scale = scaleValue.interpolate({
+            inputRange: [(index - 1) * forecastDayWidth, index * forecastDayWidth, (index + 1) * forecastDayWidth],
+            outputRange: [0.8, 1, 0.8], // Adjust these values as needed
+            extrapolate: 'clamp',
+          });
+
           return (
-            <View key={day.date_epoch} style={[styles.forecastDay, { width: forecastDayWidth }]}>
+            <Animated.View
+              key={day.date_epoch}
+              style={[
+                styles.forecastDay,
+                { width: forecastDayWidth, transform: [{ scale }] },
+              ]}
+            >
               <Text style={styles.date}>{dayOfWeek}</Text>
               <Image source={{ uri: `https:${day.day.condition.icon}` }} style={styles.weatherIcon} />
               <Text style={styles.condition}>{day.day.condition.text}</Text>
@@ -39,10 +64,10 @@ const ForecastScreen = ({ data }) => {
               <Text style={styles.infoText}>UV Index: {day.day.uv}</Text>
               <Text style={styles.infoText}>Max Wind Speed: {day.day.maxwind_mph} mph</Text>
               <Text style={styles.infoText}>Avg Visibility: {day.day.avgvis_miles} miles</Text>
-            </View>
+            </Animated.View>
           );
         })}
-      </ScrollView>
+      </Animated.ScrollView>
     </LinearGradient>
   );
 };
@@ -54,7 +79,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scrollContent: {
-    flexDirection: 'row', // Scroll horizontally
+    flexDirection: 'row',
   },
   forecastDay: {
     padding: 10,
